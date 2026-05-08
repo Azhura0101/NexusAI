@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InterviewSim | Simulador de Entrevistas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        
+        <!-- Pantalla de Inicio -->
+        <div id="start-screen" class="screen active">
+            <header>
+                <h1>Interview<span class="highlight">Sim</span></h1>
+                <p>Demuestra tu conocimiento técnico</p>
+            </header>
+            
+            <div class="settings-card glass-panel">
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h3>Modo Contrarreloj</h3>
+                        <p>30 segundos por pregunta. ¿Soportas la presión?</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="timer-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="setting-row" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                    <div class="setting-info">
+                        <h3>Cantidad de Preguntas</h3>
+                        <p>Elige si quieres un simulacro rápido o completo.</p>
+                    </div>
+                    <select id="question-count-select" class="custom-select">
+                        <option value="5">5 Preguntas</option>
+                        <option value="10" selected>10 Preguntas</option>
+                    </select>
+                </div>
+            </div>
+
+            <h3 class="section-title">Selecciona un Tema</h3>
+            <div class="topics-grid">
+                <button class="topic-card glass-panel" data-topic="python">
+                    <div class="icon">🐍</div>
+                    <h3>Python</h3>
+                    <p>Fundamentos y estructuras</p>
+                </button>
+                <button class="topic-card glass-panel" data-topic="java">
+                    <div class="icon">☕</div>
+                    <h3>Java</h3>
+                    <p>POO y sintaxis</p>
+                </button>
+                <button class="topic-card glass-panel" data-topic="linux">
+                    <div class="icon">🐧</div>
+                    <h3>Linux</h3>
+                    <p>Comandos y OS</p>
+                </button>
+                <button class="topic-card glass-panel" data-topic="javascript">
+                    <div class="icon">⚡</div>
+                    <h3>JavaScript</h3>
+                    <p>Web, DOM y ES6</p>
+                </button>
+                <button class="topic-card glass-panel" data-topic="sql">
+                    <div class="icon">🗄️</div>
+                    <h3>SQL</h3>
+                    <p>Bases de datos</p>
+                </button>
+                <button class="topic-card glass-panel" data-topic="htmlcss">
+                    <div class="icon">🎨</div>
+                    <h3>HTML & CSS</h3>
+                    <p>Maquetación Web</p>
+                </button>
+                <button class="topic-card glass-panel" data-topic="git">
+                    <div class="icon">🌳</div>
+                    <h3>Git</h3>
+                    <p>Control de versiones</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Pregunta -->
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <div class="progress-info">
+                    <span id="question-counter">Pregunta 1 de 5</span>
+                    <span id="topic-badge" class="badge">Tema</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="progress-bar-fill"></div>
+                </div>
+                <div id="timer-container" class="timer-badge hidden">
+                    ⏱ <span id="timer-display">30</span>s
+                </div>
+            </div>
+            
+            <div class="question-container glass-panel">
+                <h2 id="question-text">¿Cargando pregunta?</h2>
+                <div id="options-container" class="options-grid">
+                    <!-- Opciones inyectadas por JS -->
+                </div>
+                <div id="feedback-container" class="feedback hidden">
+                    <div id="feedback-icon"></div>
+                    <p id="feedback-text"></p>
+                </div>
+            </div>
+            
+            <div class="quiz-footer">
+                <button id="next-btn" class="btn primary hidden">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Resultados -->
+        <div id="result-screen" class="screen">
+            <div class="result-card glass-panel">
+                <h2>¡Simulación Finalizada!</h2>
+                
+                <div class="score-circle">
+                    <div class="score-content">
+                        <span id="score-number">0</span>
+                        <span class="score-divisor">/</span>
+                        <span id="total-number">0</span>
+                    </div>
+                </div>
+                
+                <h3 id="score-message">Evaluando tu perfil...</h3>
+                
+                <div id="review-container" class="review-section">
+                    <h4>Desglose Técnico:</h4>
+                    <div id="review-list">
+                        <!-- Items de revisión inyectados por JS -->
+                    </div>
+                </div>
+
+                <button id="restart-btn" class="btn primary full-width">Volver al Inicio</button>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
