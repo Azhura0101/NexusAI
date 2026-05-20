@@ -3,143 +3,381 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InterviewSim | Simulador de Entrevistas</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>Nexus AI | Inteligencia Artificial para Empresas</title>
+    <meta name="description" content="Nexus AI — La plataforma de inteligencia artificial que potencia tu visión empresarial. Automatiza flujos, analiza datos y genera insights en milisegundos.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app-container">
-        
-        <!-- Pantalla de Inicio -->
-        <div id="start-screen" class="screen active">
-            <header>
-                <h1>Interview<span class="highlight">Sim</span></h1>
-                <p>Demuestra tu conocimiento técnico</p>
-            </header>
-            
-            <div class="settings-card glass-panel">
-                <div class="setting-row">
-                    <div class="setting-info">
-                        <h3>Modo Contrarreloj</h3>
-                        <p>30 segundos por pregunta. ¿Soportas la presión?</p>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="timer-toggle">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                <div class="setting-row" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                    <div class="setting-info">
-                        <h3>Cantidad de Preguntas</h3>
-                        <p>Elige si quieres un simulacro rápido o completo.</p>
-                    </div>
-                    <select id="question-count-select" class="custom-select">
-                        <option value="5">5 Preguntas</option>
-                        <option value="10" selected>10 Preguntas</option>
-                    </select>
-                </div>
-            </div>
 
-            <h3 class="section-title">Selecciona un Tema</h3>
-            <div class="topics-grid">
-                <button class="topic-card glass-panel" data-topic="python">
-                    <div class="icon">🐍</div>
-                    <h3>Python</h3>
-                    <p>Fundamentos y estructuras</p>
-                </button>
-                <button class="topic-card glass-panel" data-topic="java">
-                    <div class="icon">☕</div>
-                    <h3>Java</h3>
-                    <p>POO y sintaxis</p>
-                </button>
-                <button class="topic-card glass-panel" data-topic="linux">
-                    <div class="icon">🐧</div>
-                    <h3>Linux</h3>
-                    <p>Comandos y OS</p>
-                </button>
-                <button class="topic-card glass-panel" data-topic="javascript">
-                    <div class="icon">⚡</div>
-                    <h3>JavaScript</h3>
-                    <p>Web, DOM y ES6</p>
-                </button>
-                <button class="topic-card glass-panel" data-topic="sql">
-                    <div class="icon">🗄️</div>
-                    <h3>SQL</h3>
-                    <p>Bases de datos</p>
-                </button>
-                <button class="topic-card glass-panel" data-topic="htmlcss">
-                    <div class="icon">🎨</div>
-                    <h3>HTML & CSS</h3>
-                    <p>Maquetación Web</p>
-                </button>
-                <button class="topic-card glass-panel" data-topic="git">
-                    <div class="icon">🌳</div>
-                    <h3>Git</h3>
-                    <p>Control de versiones</p>
-                </button>
-            </div>
-        </div>
+    <!-- Cursor Glow Effect -->
+    <div id="cursor-glow"></div>
 
-        <!-- Pantalla de Pregunta -->
-        <div id="quiz-screen" class="screen">
-            <div class="quiz-header">
-                <div class="progress-info">
-                    <span id="question-counter">Pregunta 1 de 5</span>
-                    <span id="topic-badge" class="badge">Tema</span>
-                </div>
-                <div class="progress-bar-bg">
-                    <div id="progress-bar-fill"></div>
-                </div>
-                <div id="timer-container" class="timer-badge hidden">
-                    ⏱ <span id="timer-display">30</span>s
-                </div>
-            </div>
-            
-            <div class="question-container glass-panel">
-                <h2 id="question-text">¿Cargando pregunta?</h2>
-                <div id="options-container" class="options-grid">
-                    <!-- Opciones inyectadas por JS -->
-                </div>
-                <div id="feedback-container" class="feedback hidden">
-                    <div id="feedback-icon"></div>
-                    <p id="feedback-text"></p>
-                </div>
-            </div>
-            
-            <div class="quiz-footer">
-                <button id="next-btn" class="btn primary hidden">Siguiente</button>
-            </div>
-        </div>
+    <!-- Particle Canvas Background -->
+    <canvas id="particle-canvas"></canvas>
 
-        <!-- Pantalla de Resultados -->
-        <div id="result-screen" class="screen">
-            <div class="result-card glass-panel">
-                <h2>¡Simulación Finalizada!</h2>
-                
-                <div class="score-circle">
-                    <div class="score-content">
-                        <span id="score-number">0</span>
-                        <span class="score-divisor">/</span>
-                        <span id="total-number">0</span>
-                    </div>
-                </div>
-                
-                <h3 id="score-message">Evaluando tu perfil...</h3>
-                
-                <div id="review-container" class="review-section">
-                    <h4>Desglose Técnico:</h4>
-                    <div id="review-list">
-                        <!-- Items de revisión inyectados por JS -->
-                    </div>
-                </div>
-
-                <button id="restart-btn" class="btn primary full-width">Volver al Inicio</button>
-            </div>
-        </div>
-
+    <!-- Floating Background Blobs -->
+    <div class="global-shapes" aria-hidden="true">
+        <div class="gs gs-1"></div>
+        <div class="gs gs-2"></div>
+        <div class="gs gs-3"></div>
+        <div class="gs gs-4"></div>
+        <div class="gs gs-5"></div>
     </div>
-    
-    <script src="data.js"></script>
+
+    <!-- Navbar -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo">Nexus<span>AI</span></a>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home">Inicio</a></li>
+                <li><a href="#features">Características</a></li>
+                <li><a href="#demo">Plataforma</a></li>
+                <li><a href="#stats">Impacto</a></li>
+                <li><a href="#team">Equipo</a></li>
+                <li><a href="#pricing">Precios</a></li>
+                <li><a href="signup.html?plan=starter">Inscribirse</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <div class="badge fade-up">🚀 V 2.0 YA DISPONIBLE</div>
+                <h1 class="fade-up delay-1">Inteligencia Artificial que <br><span class="gradient-text">Potencia tu Visión</span></h1>
+                <p class="hero-desc fade-up delay-2">Automatiza flujos de trabajo, analiza datos complejos y genera insights precisos en milisegundos. Nexus AI utiliza redes neuronales de última generación para transformar la manera en que tu empresa toma decisiones.</p>
+                <div class="hero-buttons fade-up delay-3">
+                    <a href="signup.html?plan=starter" class="btn primary-btn glow-effect">Empezar Gratis <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    <a href="#demo" class="btn secondary-btn">Ver Plataforma</a>
+                </div>
+                <div class="hero-trust fade-up delay-4">
+                    <span>Confían en nosotros:</span>
+                    <div class="trust-logos">
+                        <span class="trust-logo">TechCorp</span>
+                        <span class="trust-logo">DataVerse</span>
+                        <span class="trust-logo">CloudSync</span>
+                        <span class="trust-logo">InnoLab</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual fade-up delay-4">
+                <img src="assets/hero-dashboard.png" alt="Nexus AI Dashboard" class="hero-img">
+                <div class="glow-orb"></div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" id="features">
+            <div class="section-inner">
+                <span class="section-label">CARACTERÍSTICAS</span>
+                <h2 class="section-title fade-in-scroll">Poder sin precedentes</h2>
+                <p class="section-subtitle fade-in-scroll">Herramientas diseñadas para llevar tu productividad al siguiente nivel.</p>
+                <div class="features-grid">
+                    <div class="feature-card glass-panel fade-in-scroll">
+                        <div class="feature-icon">🧠</div>
+                        <h3>Redes Neuronales Adaptativas</h3>
+                        <p>Modelos de Deep Learning pre-entrenados que se adaptan a los datos específicos de tu empresa en tiempo real, mejorando su precisión con cada interacción.</p>
+                    </div>
+                    <div class="feature-card glass-panel fade-in-scroll">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Procesamiento Ultra Rápido</h3>
+                        <p>Latencia menor a 50ms gracias a nuestra infraestructura Edge distribuida en más de 30 regiones globales. Tu IA, siempre cerca de tus usuarios.</p>
+                    </div>
+                    <div class="feature-card glass-panel fade-in-scroll">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Privacidad Criptográfica</h3>
+                        <p>Tus datos son exclusivamente tuyos. Nunca se utilizan para entrenar los modelos base. Cumplimos con GDPR, SOC 2 y las normativas más estrictas.</p>
+                    </div>
+                    <div class="feature-card glass-panel fade-in-scroll">
+                        <div class="feature-icon">📊</div>
+                        <h3>Análisis Predictivo</h3>
+                        <p>Genera proyecciones basadas en patrones históricos. Anticípate al mercado con modelos de predicción con un 94% de accuracy comprobado.</p>
+                    </div>
+                    <div class="feature-card glass-panel fade-in-scroll">
+                        <div class="feature-icon">🔗</div>
+                        <h3>Integración Nativa</h3>
+                        <p>Conéctate con más de 200 herramientas: Slack, Notion, Google Workspace, Salesforce, AWS y más. Un SDK completo para desarrolladores.</p>
+                    </div>
+                    <div class="feature-card glass-panel fade-in-scroll">
+                        <div class="feature-icon">🌍</div>
+                        <h3>Multilingüe por Defecto</h3>
+                        <p>Soporte nativo para 40+ idiomas. Procesa, traduce y genera contenido localizado sin configuración adicional.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Platform Demo Section -->
+        <section class="demo-section" id="demo">
+            <div class="section-inner">
+                <span class="section-label">LA PLATAFORMA</span>
+                <h2 class="section-title fade-in-scroll">Un dashboard que trabaja por ti</h2>
+                <p class="section-subtitle fade-in-scroll">Visualiza métricas, entrena modelos y despliega soluciones desde una sola interfaz intuitiva.</p>
+                <div class="demo-visual fade-in-scroll">
+                    <div class="demo-window">
+                        <div class="window-header">
+                            <div class="window-dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <span class="window-url">app.nexusai.com/dashboard</span>
+                        </div>
+                        <div class="window-body">
+                            <div class="demo-sidebar">
+                                <div class="sidebar-item active">📊 Dashboard</div>
+                                <div class="sidebar-item">🧠 Modelos</div>
+                                <div class="sidebar-item">📁 Datasets</div>
+                                <div class="sidebar-item">⚙️ Config</div>
+                                <div class="sidebar-item">📈 Reportes</div>
+                            </div>
+                            <div class="demo-content">
+                                <div class="demo-stat-row">
+                                    <div class="demo-stat-card">
+                                        <span class="demo-stat-number">14,312</span>
+                                        <span class="demo-stat-label">Nodos Activos</span>
+                                    </div>
+                                    <div class="demo-stat-card">
+                                        <span class="demo-stat-number">2.7M</span>
+                                        <span class="demo-stat-label">Eventos / seg</span>
+                                    </div>
+                                    <div class="demo-stat-card">
+                                        <span class="demo-stat-number">99.97%</span>
+                                        <span class="demo-stat-label">Uptime</span>
+                                    </div>
+                                </div>
+                                <div class="demo-chart-area">
+                                    <div class="chart-bar-group">
+                                        <div class="chart-bar" style="--h: 35%"></div>
+                                        <div class="chart-bar" style="--h: 60%"></div>
+                                        <div class="chart-bar" style="--h: 45%"></div>
+                                        <div class="chart-bar" style="--h: 80%"></div>
+                                        <div class="chart-bar" style="--h: 55%"></div>
+                                        <div class="chart-bar" style="--h: 90%"></div>
+                                        <div class="chart-bar" style="--h: 70%"></div>
+                                        <div class="chart-bar" style="--h: 50%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section" id="stats">
+            <div class="section-inner">
+                <div class="stats-grid">
+                    <div class="stat-box fade-in-scroll">
+                        <span class="stat-number" data-count="10000">0</span>
+                        <span class="stat-suffix">+</span>
+                        <span class="stat-label">Equipos activos</span>
+                    </div>
+                    <div class="stat-box fade-in-scroll">
+                        <span class="stat-number" data-count="50">0</span>
+                        <span class="stat-suffix">M+</span>
+                        <span class="stat-label">Consultas procesadas / día</span>
+                    </div>
+                    <div class="stat-box fade-in-scroll">
+                        <span class="stat-number" data-count="99">0</span>
+                        <span class="stat-suffix">.97%</span>
+                        <span class="stat-label">Uptime garantizado</span>
+                    </div>
+                    <div class="stat-box fade-in-scroll">
+                        <span class="stat-number" data-count="30">0</span>
+                        <span class="stat-suffix">+</span>
+                        <span class="stat-label">Regiones globales</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="team-section" id="team">
+            <div class="section-inner">
+                <span class="section-label">NUESTRO EQUIPO</span>
+                <h2 class="section-title fade-in-scroll">Las mentes detrás de Nexus</h2>
+                <p class="section-subtitle fade-in-scroll">Un equipo multidisciplinario con experiencia en Google, Meta y startups de Silicon Valley.</p>
+                <div class="team-grid">
+                    <div class="team-card glass-panel fade-in-scroll">
+                        <img src="assets/team4.png" alt="Andrés Reyes" class="team-photo">
+                        <h3>Andrés Reyes</h3>
+                        <span class="team-role">CEO & Co-Fundador</span>
+                        <p>Ex-Google. 15 años liderando equipos de IA en Silicon Valley.</p>
+                    </div>
+                    <div class="team-card glass-panel fade-in-scroll">
+                        <img src="assets/team1.png" alt="Valentina Torres" class="team-photo">
+                        <h3>Valentina Torres</h3>
+                        <span class="team-role">CTO & Co-Fundadora</span>
+                        <p>PhD en Machine Learning. Ex-investigadora en DeepMind.</p>
+                    </div>
+                    <div class="team-card glass-panel fade-in-scroll">
+                        <img src="assets/team2.png" alt="Marcus Johnson" class="team-photo">
+                        <h3>Marcus Johnson</h3>
+                        <span class="team-role">VP de Ingeniería</span>
+                        <p>Arquitecto de infraestructura distribuida. Ex-Meta.</p>
+                    </div>
+                    <div class="team-card glass-panel fade-in-scroll">
+                        <img src="assets/team3.png" alt="Clara Müller" class="team-photo">
+                        <h3>Clara Müller</h3>
+                        <span class="team-role">Lead Product Designer</span>
+                        <p>Diseñadora UX/UI. Creó interfaces para +5M de usuarios.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="pricing-section" id="pricing">
+            <div class="section-inner">
+                <span class="section-label">PRECIOS</span>
+                <h2 class="section-title fade-in-scroll">Simple, transparente, escalable</h2>
+                <p class="section-subtitle fade-in-scroll">Sin sorpresas. Comienza gratis y escala según tus necesidades.</p>
+                <div class="pricing-grid">
+                    <div class="pricing-card glass-panel fade-in-scroll">
+                        <h3>Starter</h3>
+                        <div class="price">$0<span>/mes</span></div>
+                        <p class="price-desc">Perfecto para explorar la plataforma.</p>
+                        <ul class="price-features">
+                            <li>✓ 1,000 consultas / mes</li>
+                            <li>✓ 1 modelo personalizado</li>
+                            <li>✓ Dashboard básico</li>
+                            <li>✓ Soporte por email</li>
+                        </ul>
+                        <a href="signup.html?plan=starter" class="btn secondary-btn full-width">Empezar Gratis</a>
+                    </div>
+                    <div class="pricing-card glass-panel featured fade-in-scroll">
+                        <div class="popular-badge">MÁS POPULAR</div>
+                        <h3>Pro</h3>
+                        <div class="price">$49<span>/mes</span></div>
+                        <p class="price-desc">Para equipos que necesitan más potencia.</p>
+                        <ul class="price-features">
+                            <li>✓ 50,000 consultas / mes</li>
+                            <li>✓ 10 modelos personalizados</li>
+                            <li>✓ Dashboard avanzado + API</li>
+                            <li>✓ Soporte prioritario 24/7</li>
+                            <li>✓ Integraciones ilimitadas</li>
+                        </ul>
+                        <a href="signup.html?plan=pro" class="btn primary-btn glow-effect full-width">Elegir Plan Pro</a>
+                    </div>
+                    <div class="pricing-card glass-panel fade-in-scroll">
+                        <h3>Enterprise</h3>
+                        <div class="price">Custom</div>
+                        <p class="price-desc">Soluciones a la medida de tu empresa.</p>
+                        <ul class="price-features">
+                            <li>✓ Consultas ilimitadas</li>
+                            <li>✓ Modelos ilimitados</li>
+                            <li>✓ SLA 99.99% garantizado</li>
+                            <li>✓ Ingeniero dedicado</li>
+                            <li>✓ On-Premise disponible</li>
+                        </ul>
+                        <a href="signup.html?plan=enterprise" class="btn secondary-btn full-width">Contactar Ventas</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section" id="signup">
+            <div class="section-inner">
+                <div class="cta-card glass-panel fade-in-scroll">
+                    <span class="section-label">ÚNETE A Nexus AI</span>
+                    <h2>¿Listo para revolucionar tu flujo de trabajo?</h2>
+                    <p>Únete a miles de desarrolladores y empresas que ya están acelerando su crecimiento tecnológico con modelos de IA personalizados.</p>
+                    <div class="cta-buttons">
+                        <a href="signup.html?plan=starter" class="btn primary-btn glow-effect">Crear Cuenta Gratuita</a>
+                        <a href="signup.html?plan=pro" class="btn secondary-btn">Obtener Plan Pro</a>
+                    </div>
+                </div>
+                <div class="disclaimer fade-in-scroll">
+                    <p>⚠️ <strong>Aviso:</strong> Esta página es un proyecto ficticio de portafolio. La inscripción es simulada y <strong>ningún dato personal será recopilado, almacenado ni utilizado</strong>. Nexus AI no es un producto real.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <a href="#home" class="nav-logo footer-logo">Nexus<span>AI</span></a>
+                <p>La plataforma de IA que transforma la forma en que las empresas trabajan con sus datos.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Producto</h4>
+                <a href="#features">Características</a>
+                <a href="#pricing">Precios</a>
+                <a href="#demo">Plataforma</a>
+                <a href="#">Documentación</a>
+            </div>
+            <div class="footer-col">
+                <h4>Empresa</h4>
+                <a href="#team">Equipo</a>
+                <a href="#">Blog</a>
+                <a href="#">Carreras</a>
+                <a href="#">Prensa</a>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="#">Privacidad</a>
+                <a href="#">Términos</a>
+                <a href="#">Cookies</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Nexus AI Inc. Todos los derechos reservados. <em>Proyecto ficticio de portafolio.</em></p>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-icon">🎉</div>
+            <h3>¡Inscripción Simulada con Éxito!</h3>
+            <p>Recuerda: esta es una <strong>demostración ficticia</strong>. Ningún dato ha sido enviado ni almacenado. ¡Gracias por explorar el proyecto!</p>
+            <button class="btn primary-btn" onclick="closeModal()">Entendido</button>
+        </div>
+    </div>
+
+    <!-- AI Chat Widget -->
+    <button id="chat-toggle" class="chat-toggle" aria-label="Abrir chat">
+        <span class="chat-toggle-icon">💬</span>
+        <span class="chat-toggle-close">✕</span>
+        <span class="chat-pulse"></span>
+    </button>
+
+    <div id="chat-widget" class="chat-widget">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar">🤖</div>
+                <div>
+                    <h4>Nexus AI Assistant</h4>
+                    <span class="chat-status"><span class="status-dot"></span> Online</span>
+                </div>
+            </div>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <div class="chat-msg bot">
+                <span>¡Hola! 👋 Bienvenido a Nexus AI. ¿Cómo te llamas?</span>
+            </div>
+        </div>
+        <div id="chat-chips" class="chat-chips" style="display: none;"></div>
+        <form id="chat-form" class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Escribe tu nombre..." autocomplete="off">
+            <button type="submit" class="chat-send">➤</button>
+        </form>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
