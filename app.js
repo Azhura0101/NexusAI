@@ -1,5 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Detecta si el dispositivo puede realmente "hacer hover" con precisión
+    // (mouse/trackpad) vs. touch. Los efectos de mouse (partículas, glow,
+    // tilt 3D, botones magnéticos) no tienen sentido en touch y, peor,
+    // pueden dejar tarjetas/botones con transform "atascado" tras un tap,
+    // porque en touch no siempre llega el evento mouseleave que los resetea.
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     // ===================== QUANTUM NEURAL NET BACKGROUND =====================
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
@@ -52,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dx = this.x - mouse.x;
             const dy = this.y - mouse.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 180) {
+            if (dist > 0 && dist < 180) {
                 const force = (180 - dist) / 180 * 1.2;
                 this.vx += (dx / dist) * force * 0.15;
                 this.vy += (dy / dist) * force * 0.15;
@@ -63,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const sdx = this.x - sw.x;
                 const sdy = this.y - sw.y;
                 const sdist = Math.sqrt(sdx * sdx + sdy * sdy);
-                if (Math.abs(sdist - sw.radius) < 20) {
+                if (sdist > 0 && Math.abs(sdist - sw.radius) < 20) {
                     const force = 6 * sw.alpha;
                     this.vx += (sdx / sdist) * force;
                     this.vy += (sdy / sdist) * force;
@@ -111,10 +119,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateShockwaves() {
-        shockwaves.forEach((sw, idx) => {
+        // Antes se usaba forEach + splice(idx,1) mientras se iteraba: al
+        // borrar un elemento a mitad de la iteración, el siguiente se
+        // recorre "saltado" porque el arreglo se recorta pero forEach
+        // sigue avanzando el índice como si nada. Iterar hacia atrás evita
+        // el problema porque los índices ya visitados no se ven afectados
+        // por el splice de los que vienen después.
+        for (let i = shockwaves.length - 1; i >= 0; i--) {
+            const sw = shockwaves[i];
             sw.radius += sw.speed;
             sw.alpha = 1 - (sw.radius / sw.maxRadius);
-            
+
             // Draw visual pulse wave
             ctx.beginPath();
             ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
@@ -123,9 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke();
 
             if (sw.radius >= sw.maxRadius) {
-                shockwaves.splice(idx, 1);
+                shockwaves.splice(i, 1);
             }
-        });
+        }
     }
 
     function animateParticles() {
@@ -135,31 +150,45 @@ document.addEventListener('DOMContentLoaded', () => {
         updateShockwaves();
         requestAnimationFrame(animateParticles);
     }
-    animateParticles();
+
+    // En touch no hay cursor real que repela partículas, y en
+    // "reduced motion" el usuario pidió explícitamente menos animación:
+    // en ambos casos no vale la pena gastar batería/CPU en este loop.
+    if (canHover && !prefersReducedMotion) {
+        animateParticles();
+    } else {
+        canvas.style.display = 'none';
+    }
 
     // ===================== CURSOR GLOW =====================
     const cursorGlow = document.getElementById('cursor-glow');
-    document.addEventListener('mousemove', (e) => {
-        requestAnimationFrame(() => {
-            cursorGlow.style.left = `${e.clientX}px`;
-            cursorGlow.style.top = `${e.clientY}px`;
+    if (canHover) {
+        document.addEventListener('mousemove', (e) => {
+            requestAnimationFrame(() => {
+                cursorGlow.style.left = `${e.clientX}px`;
+                cursorGlow.style.top = `${e.clientY}px`;
+            });
         });
-    });
 
-    // Grow the glow when hovering interactive sections
-    const interactiveElements = document.querySelectorAll('.feature-card, .team-card, .pricing-card, .signup-card');
-    interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cursorGlow.style.width = '700px';
-            cursorGlow.style.height = '700px';
-            cursorGlow.style.background = 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.05) 40%, transparent 65%)';
+        // Grow the glow when hovering interactive sections
+        const interactiveElements = document.querySelectorAll('.feature-card, .team-card, .pricing-card, .signup-card');
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorGlow.style.width = '700px';
+                cursorGlow.style.height = '700px';
+                cursorGlow.style.background = 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.05) 40%, transparent 65%)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorGlow.style.width = '500px';
+                cursorGlow.style.height = '500px';
+                cursorGlow.style.background = 'radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(139, 92, 246, 0.04) 40%, transparent 65%)';
+            });
         });
-        el.addEventListener('mouseleave', () => {
-            cursorGlow.style.width = '500px';
-            cursorGlow.style.height = '500px';
-            cursorGlow.style.background = 'radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(139, 92, 246, 0.04) 40%, transparent 65%)';
-        });
-    });
+    } else if (cursorGlow) {
+        // Sin mouse real no hay nada que "seguir": antes se quedaba fijo
+        // en la esquina superior izquierda (posición inicial) en móvil.
+        cursorGlow.style.display = 'none';
+    }
 
     // ===================== NAVBAR =====================
     const navbar = document.getElementById('navbar');
@@ -448,55 +477,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===================== HOLOGRAPHIC 3D TILT & GLARE EFFECT =====================
-    const tiltCards = document.querySelectorAll('.feature-card, .team-card, .pricing-card, .hero-img');
-    tiltCards.forEach(card => {
-        card.classList.add('glare-card');
-        
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            // Calculate tilt
-            const rotateX = ((y - centerY) / centerY) * -5;
-            const rotateY = ((x - centerX) / centerX) * 5;
-            
-            // Apply tilt & custom properties for reflection mapping
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px) scale(1.02)`;
-            card.style.setProperty('--glare-x', `${x}px`);
-            card.style.setProperty('--glare-y', `${y}px`);
+    // Solo tiene sentido con mouse: en touch, "mouseleave" no siempre
+    // llega tras un tap, así que la tarjeta podía quedar inclinada/
+    // desplazada para siempre hasta el próximo toque en otro lado.
+    if (canHover) {
+        const tiltCards = document.querySelectorAll('.feature-card, .team-card, .pricing-card, .hero-img');
+        tiltCards.forEach(card => {
+            card.classList.add('glare-card');
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                // Calculate tilt
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+
+                // Apply tilt & custom properties for reflection mapping
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px) scale(1.02)`;
+                card.style.setProperty('--glare-x', `${x}px`);
+                card.style.setProperty('--glare-y', `${y}px`);
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
         });
-        
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = '';
-        });
-    });
+    }
 
     // ===================== MAGNETIC BUTTONS =====================
-    const magneticBtns = document.querySelectorAll('.btn');
-    magneticBtns.forEach(btn => {
-        btn.addEventListener('mousemove', (e) => {
-            const rect = btn.getBoundingClientRect();
-            // Calculate vector distance from center
-            const cx = rect.left + rect.width / 2;
-            const cy = rect.top + rect.height / 2;
-            const dx = e.clientX - cx;
-            const dy = e.clientY - cy;
-            
-            // Pull the button towards cursor coordinates
-            btn.style.transform = `translate(${dx * 0.3}px, ${dy * 0.3}px) scale(1.04)`;
+    if (canHover) {
+        const magneticBtns = document.querySelectorAll('.btn');
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                // Calculate vector distance from center
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const dx = e.clientX - cx;
+                const dy = e.clientY - cy;
+
+                // Pull the button towards cursor coordinates
+                btn.style.transform = `translate(${dx * 0.3}px, ${dy * 0.3}px) scale(1.04)`;
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = '';
+            });
         });
-        
-        btn.addEventListener('mouseleave', () => {
-            btn.style.transform = '';
-        });
-    });
+    }
 
     // ===================== TEXT DECRYPTION SCRAMBLER =====================
     function scrambleText(element) {
+        // Antes se guardaba solo innerText y, al terminar, se restauraba
+        // con element.innerText = originalText. Eso funciona para texto
+        // plano, pero el <h1> del hero tiene un <br> y un
+        // <span class="gradient-text"> dentro: al restaurar como texto
+        // plano se perdía el salto de línea y el degradado de color para
+        // siempre después de la animación. Ahora se guarda también el
+        // HTML original y se restaura al final.
+        const originalHTML = element.innerHTML;
         const originalText = element.innerText;
+
+        if (prefersReducedMotion) {
+            element.innerHTML = originalHTML;
+            return;
+        }
+
         const chars = '!<>-_\\/[]{}—=+*^?#________';
         let frame = 0;
         const queue = [];
@@ -532,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.innerHTML = output;
             
             if (complete === queue.length) {
-                element.innerText = originalText;
+                element.innerHTML = originalHTML;
             } else {
                 frame++;
                 requestAnimationFrame(update);
@@ -736,4 +786,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 30000);
 
 });
-
