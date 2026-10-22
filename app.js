@@ -200,13 +200,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const navMenu = document.querySelector('.nav-menu');
     mobileMenu.addEventListener('click', () => {
-        mobileMenu.classList.toggle('active');
-        navMenu.classList.toggle('active');
+        const isOpen = mobileMenu.classList.toggle('active');
+        navMenu.classList.toggle('active', isOpen);
+        mobileMenu.setAttribute('aria-expanded', String(isOpen));
+        mobileMenu.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
     });
     document.querySelectorAll('.nav-menu li a').forEach(link => {
         link.addEventListener('click', () => {
             mobileMenu.classList.remove('active');
             navMenu.classList.remove('active');
+            mobileMenu.setAttribute('aria-expanded', 'false');
+            mobileMenu.setAttribute('aria-label', 'Abrir menú');
         });
     });
 
@@ -214,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('a[href^="#"]').forEach(a => {
         a.addEventListener('click', e => {
             const target = document.querySelector(a.getAttribute('href'));
-            if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+            if (target) { e.preventDefault(); target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' }); }
         });
     });
 
@@ -238,158 +242,190 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarItems = document.querySelectorAll('.sidebar-item');
     const demoContent = document.querySelector('.demo-content');
 
+    const demoIcon = name => `<svg class="ui-icon" aria-hidden="true"><use href="#icon-${name}"></use></svg>`;
+
     const demoTemplates = {
-        '📊 dashboard': `
-            <div class="demo-stat-row">
-                <div class="demo-stat-card">
-                    <span class="demo-stat-number">14,312</span>
-                    <span class="demo-stat-label">Nodos Activos</span>
+        'dashboard': `
+            <section class="workspace-view" aria-labelledby="overview-title">
+                <header class="view-heading">
+                    <div><span class="view-kicker">VISTA GENERAL / WORKSPACE</span><h2 id="overview-title">Tu actividad, en perspectiva</h2><p>Un resumen claro de lo que ocurre en tu espacio de trabajo.</p></div>
+                    <div class="view-period"><svg class="ui-icon" aria-hidden="true"><use href="#icon-clock"></use></svg><span>Últimos 7 días</span><span aria-hidden="true">⌄</span></div>
+                </header>
+                <div class="overview-metrics">
+                    <article class="overview-card"><span class="overview-card-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-bolt"></use></svg></span><span class="overview-card-label">Consultas procesadas</span><strong class="overview-card-value">24,860 <small class="metric-trend">+12.8%</small></strong><span class="overview-card-foot">vs. semana anterior</span></article>
+                    <article class="overview-card"><span class="overview-card-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-clock"></use></svg></span><span class="overview-card-label">Tiempo recuperado</span><strong class="overview-card-value">38.5 h <small class="metric-neutral">este mes</small></strong><span class="overview-card-foot">en tareas repetitivas</span></article>
+                    <article class="overview-card"><span class="overview-card-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-cpu"></use></svg></span><span class="overview-card-label">Modelos disponibles</span><strong class="overview-card-value">08 <small class="metric-neutral">de 10</small></strong><span class="overview-card-foot">3 usados esta semana</span></article>
+                    <article class="overview-card"><span class="overview-card-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-chart"></use></svg></span><span class="overview-card-label">Calidad de respuesta</span><strong class="overview-card-value">96.4% <small class="metric-trend">+2.1%</small></strong><span class="overview-card-foot">promedio de evaluación</span></article>
                 </div>
-                <div class="demo-stat-card">
-                    <span class="demo-stat-number">2.7M</span>
-                    <span class="demo-stat-label">Eventos / seg</span>
+                <div class="dashboard-insights-grid">
+                    <section class="surface-card activity-card" aria-label="Actividad del workspace">
+                        <div class="surface-card-heading"><div><h3>Actividad del workspace</h3><p>Consultas completadas durante la semana</p></div><span class="chart-legend"><i></i> Consultas</span></div>
+                        <div class="activity-chart"><div class="chart-y-labels"><span>5k</span><span>3k</span><span>1k</span><span>0</span></div><div class="chart-plot"><div class="chart-grid-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="chart-bar-group"><div class="chart-bar" style="--h:46%"><span>Lun</span></div><div class="chart-bar" style="--h:67%"><span>Mar</span></div><div class="chart-bar" style="--h:56%"><span>Mié</span></div><div class="chart-bar" style="--h:79%"><span>Jue</span></div><div class="chart-bar" style="--h:62%"><span>Vie</span></div><div class="chart-bar" style="--h:91%"><span>Sáb</span></div><div class="chart-bar" style="--h:73%"><span>Dom</span></div></div></div></div>
+                    </section>
+                    <aside class="surface-card quick-insights"><div class="surface-card-heading"><div><h3>Señales destacadas</h3><p>Lecturas de ejemplo del workspace</p></div><span class="insight-spark"><svg class="ui-icon" aria-hidden="true"><use href="#icon-sparkles"></use></svg></span></div><div class="insight-highlight"><span class="insight-highlight-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-bolt"></use></svg></span><div><strong>Más actividad el sábado</strong><p>El volumen de consultas subió un 18% respecto al promedio diario.</p></div></div><div class="insight-highlight"><span class="insight-highlight-icon blue"><svg class="ui-icon" aria-hidden="true"><use href="#icon-brain"></use></svg></span><div><strong>Respuestas más consistentes</strong><p>La evaluación de calidad mejoró en los flujos de soporte.</p></div></div><div class="insight-foot"><span class="status-dot"></span> Datos ficticios para esta demostración</div></aside>
                 </div>
-                <div class="demo-stat-card">
-                    <span class="demo-stat-number">99.97%</span>
-                    <span class="demo-stat-label">Uptime</span>
-                </div>
-            </div>
-            <div class="demo-chart-area">
-                <div class="chart-bar-group">
-                    <div class="chart-bar animated" style="--h: 35%"></div>
-                    <div class="chart-bar animated" style="--h: 60%"></div>
-                    <div class="chart-bar animated" style="--h: 45%"></div>
-                    <div class="chart-bar animated" style="--h: 80%"></div>
-                    <div class="chart-bar animated" style="--h: 55%"></div>
-                    <div class="chart-bar animated" style="--h: 90%"></div>
-                    <div class="chart-bar animated" style="--h: 70%"></div>
-                    <div class="chart-bar animated" style="--h: 50%"></div>
-                </div>
-            </div>
+                <section class="surface-card activity-feed"><div class="surface-card-heading"><div><h3>Actividad reciente</h3><p>Una muestra de los últimos eventos del equipo</p></div><span class="text-action">Ver actividad <svg class="ui-icon" aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div><div class="activity-feed-list"><div class="feed-row"><span class="feed-icon mint"><svg class="ui-icon" aria-hidden="true"><use href="#icon-sparkles"></use></svg></span><div><strong>Análisis de comentarios completado</strong><small>Flujo de análisis · hace 12 min</small></div><span class="feed-status">Completado</span></div><div class="feed-row"><span class="feed-icon violet"><svg class="ui-icon" aria-hidden="true"><use href="#icon-cpu"></use></svg></span><div><strong>Modelo de soporte actualizado</strong><small>Modelos · hace 48 min</small></div><span class="feed-status">Publicado</span></div><div class="feed-row"><span class="feed-icon amber"><svg class="ui-icon" aria-hidden="true"><use href="#icon-folder"></use></svg></span><div><strong>Dataset de operaciones sincronizado</strong><small>Fuentes de datos · hace 2 h</small></div><span class="feed-status">Revisado</span></div></div></section>
+            </section>
         `,
-        '🧠 modelos': `
-            <div class="demo-model-list">
-                <div class="demo-model-item">
-                    <div class="demo-model-info">
-                        <span class="demo-model-name">🧠 nexus-llm-v4</span>
-                        <span class="demo-model-meta">Latencia: 38ms | Precisión: 98.4%</span>
-                    </div>
-                    <span class="demo-status-badge active">Activo</span>
+        'models': `
+            <section class="workspace-view" aria-labelledby="models-title">
+                <header class="view-heading"><div><span class="view-kicker">CENTRO DE MODELOS</span><h2 id="models-title">Inteligencia para cada tarea</h2><p>Explora los modelos de ejemplo y una selección de capacidades disponibles.</p></div><div class="view-period"><svg class="ui-icon" aria-hidden="true"><use href="#icon-cpu"></use></svg><span>Catálogo demo</span></div></header>
+                <div class="model-summary-strip"><div><span class="summary-number">08</span> modelos disponibles</div><i></i><div><span class="summary-number">03</span> en uso</div><i></i><div><span class="summary-number">99.2%</span> disponibilidad ilustrativa</div></div>
+                <div class="model-featured-grid">
+                    <article class="model-feature-card featured-model"><div class="model-feature-top"><span class="model-symbol"><svg class="ui-icon" aria-hidden="true"><use href="#icon-brain"></use></svg></span><span class="model-pill"><i></i> Disponible</span></div><span class="model-category">LENGUAJE · GENERAL</span><h3>Nexus Language Pro</h3><p>Comprende instrucciones y ayuda a resumir, redactar y explorar información.</p><div class="model-specs"><span><small>Latencia media</small><strong>420 ms</strong></span><span><small>Contexto</small><strong>128k tokens</strong></span></div><span class="model-use-action">Modelo recomendado <svg class="ui-icon" aria-hidden="true"><use href="#icon-arrow"></use></svg></span></article>
+                    <article class="model-feature-card"><div class="model-feature-top"><span class="model-symbol violet"><svg class="ui-icon" aria-hidden="true"><use href="#icon-file"></use></svg></span><span class="model-pill training"><i></i> Ajuste de muestra</span></div><span class="model-category">VISIÓN · DOCUMENTOS</span><h3>Nexus Vision</h3><p>Interpreta documentos e imágenes en escenarios de demostración.</p><div class="model-specs"><span><small>Progreso visual</small><strong>72%</strong></span><span><small>Tipo</small><strong>Multimodal</strong></span></div><div class="model-progress-label"><span>Preparación ficticia</span><strong>72%</strong></div><div class="model-progress"><i style="width:72%"></i></div><div class="model-feature-foot">Estado ilustrativo · no está entrenando realmente</div></article>
+                    <article class="model-feature-card"><div class="model-feature-top"><span class="model-symbol blue"><svg class="ui-icon" aria-hidden="true"><use href="#icon-chat"></use></svg></span><span class="model-pill"><i></i> Disponible</span></div><span class="model-category">TEXTO · CLASIFICACIÓN</span><h3>Nexus Sentiment</h3><p>Organiza opiniones por tono y tema para explorar tendencias de ejemplo.</p><div class="model-specs"><span><small>Latencia media</small><strong>180 ms</strong></span><span><small>Uso</small><strong>Moderado</strong></span></div><span class="model-use-action subtle">Ver capacidad <svg class="ui-icon" aria-hidden="true"><use href="#icon-arrow"></use></svg></span></article>
                 </div>
-                <div class="demo-model-item">
-                    <div class="demo-model-info">
-                        <span class="demo-model-name">🖼️ nexus-vision-pro</span>
-                        <span class="demo-model-meta">Entrenando con imágenes corporativas...</span>
-                    </div>
-                    <span class="demo-status-badge training">Entrenando (72%)</span>
-                </div>
-                <div class="demo-model-item">
-                    <div class="demo-model-info">
-                        <span class="demo-model-name">🎙️ nexus-voice-medium</span>
-                        <span class="demo-model-meta">Generación TTS en tiempo real</span>
-                    </div>
-                    <span class="demo-status-badge standby">Espera</span>
-                </div>
-            </div>
+                <div class="section-inline-heading"><div><h3>Biblioteca del workspace</h3><p>Otros modelos de muestra disponibles</p></div><span class="demo-counter">3 elementos</span></div>
+                <div class="model-library"><div class="library-row"><span class="library-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-sparkles"></use></svg></span><div><strong>Nexus Embed Small</strong><small>Embeddings · búsqueda semántica</small></div><span class="library-tag">Disponible</span><span class="library-latency">95 ms</span></div><div class="library-row"><span class="library-icon violet"><svg class="ui-icon" aria-hidden="true"><use href="#icon-file"></use></svg></span><div><strong>Nexus Translate</strong><small>Traducción · 18 idiomas</small></div><span class="library-tag">Disponible</span><span class="library-latency">260 ms</span></div><div class="library-row"><span class="library-icon blue"><svg class="ui-icon" aria-hidden="true"><use href="#icon-bolt"></use></svg></span><div><strong>Nexus Realtime</strong><small>Asistencia · baja latencia</small></div><span class="library-tag muted">En espera</span><span class="library-latency">—</span></div></div>
+                <p class="demo-data-caption"><svg class="ui-icon" aria-hidden="true"><use href="#icon-warning"></use></svg> Nombres, estados y métricas son ilustrativos; no representan modelos activos.</p>
+            </section>
         `,
-        '📁 datasets': `
-            <div class="demo-dataset-list">
-                <div class="demo-dataset-item">
-                    <div class="demo-dataset-details">
-                        <span class="demo-dataset-name">📁 customer_interactions_v2.json</span>
-                        <span class="demo-dataset-size">Tamaño: 245.8 MB | Registros: 1.2M</span>
-                    </div>
-                    <button class="demo-dataset-btn">Sincronizar</button>
+        'datasets': `
+            <section class="workspace-view" aria-labelledby="datasets-title">
+                <header class="view-heading"><div><span class="view-kicker">FUENTES DE INFORMACIÓN</span><h2 id="datasets-title">Datos listos para explorar</h2><p>Una vista organizada de las fuentes ficticias de tu workspace.</p></div><span class="view-primary-action"><svg class="ui-icon" aria-hidden="true"><use href="#icon-link"></use></svg> Conectar fuente</span></header>
+                <section class="dataset-overview"><div class="dataset-overview-main"><span class="dataset-overview-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-folder"></use></svg></span><div><strong>Almacenamiento del workspace</strong><small>Espacio ilustrativo utilizado por los datasets de ejemplo</small></div><span class="dataset-overview-status"><i></i> Todo actualizado</span></div><div class="dataset-usage"><div><span>Uso simulado</span><strong>383 MB <small>de 2 GB</small></strong></div><div class="usage-track"><i style="width:19%"></i></div></div></section>
+                <div class="section-inline-heading"><div><h3>Datasets conectados</h3><p>Última actividad simulada hace unos minutos</p></div><span class="demo-counter">03 fuentes</span></div>
+                <div class="dataset-table"><div class="dataset-table-head"><span>FUENTE</span><span>TAMAÑO</span><span>REGISTROS</span><span>ESTADO</span><span></span></div>
+                    <div class="dataset-row"><div class="dataset-file"><i class="file-type json">JSON</i><span><strong>customer_interactions_v2.json</strong><small>Actualizado hace 12 min</small></span></div><span class="dataset-cell">245.8 MB</span><span class="dataset-cell">1.2 M</span><span class="dataset-state"><i></i> Conectado</span><button class="demo-dataset-btn" type="button">Sincronizar</button></div>
+                    <div class="dataset-row"><div class="dataset-file"><i class="file-type csv">CSV</i><span><strong>financial_forecast_2026.csv</strong><small>Actualizado hace 1 h</small></span></div><span class="dataset-cell">48.2 MB</span><span class="dataset-cell">420 K</span><span class="dataset-state"><i></i> Conectado</span><button class="demo-dataset-btn" type="button">Sincronizar</button></div>
+                    <div class="dataset-row"><div class="dataset-file"><i class="file-type parquet">PAR</i><span><strong>user_feedback_sentiments.parquet</strong><small>Actualizado ayer</small></span></div><span class="dataset-cell">89.1 MB</span><span class="dataset-cell">780 K</span><span class="dataset-state"><i></i> Conectado</span><button class="demo-dataset-btn" type="button">Sincronizar</button></div>
                 </div>
-                <div class="demo-dataset-item">
-                    <div class="demo-dataset-details">
-                        <span class="demo-dataset-name">📊 financial_forecast_2026.csv</span>
-                        <span class="demo-dataset-size">Tamaño: 48.2 MB | Registros: 420K</span>
-                    </div>
-                    <button class="demo-dataset-btn">Sincronizar</button>
-                </div>
-                <div class="demo-dataset-item">
-                    <div class="demo-dataset-details">
-                        <span class="demo-dataset-name">📝 user_feedback_sentiments.parquet</span>
-                        <span class="demo-dataset-size">Tamaño: 89.1 MB | Registros: 780K</span>
-                    </div>
-                    <button class="demo-dataset-btn">Sincronizar</button>
-                </div>
-            </div>
+                <p class="demo-data-caption"><svg class="ui-icon" aria-hidden="true"><use href="#icon-warning"></use></svg> Fuentes, tamaños y registros son datos de muestra. El botón de sincronizar solo anima esta interfaz.</p>
+            </section>
         `,
-        '⚙️ config': `
-            <div class="demo-config-list">
-                <div class="demo-config-item">
-                    <div class="demo-config-info">
-                        <span class="demo-config-title">Auto-escalado Inteligente</span>
-                        <span class="demo-config-desc">Escalar recursos automáticamente según picos de demanda.</span>
-                    </div>
-                    <label class="demo-switch">
-                        <input type="checkbox" checked>
-                        <span class="demo-slider"></span>
-                    </label>
+        'config': `
+            <section class="workspace-view" aria-labelledby="settings-title">
+                <header class="view-heading"><div><span class="view-kicker">PREFERENCIAS DEL WORKSPACE</span><h2 id="settings-title">Configura tu espacio</h2><p>Ajustes de ejemplo para personalizar la experiencia visual.</p></div><span class="settings-demo-label"><svg class="ui-icon" aria-hidden="true"><use href="#icon-warning"></use></svg> Solo demostración</span></header>
+                <div class="settings-layout"><div class="settings-nav" aria-label="Categorías de configuración"><span class="settings-nav-item active"><svg class="ui-icon" aria-hidden="true"><use href="#icon-settings"></use></svg> General <span>›</span></span><span class="settings-nav-item"><svg class="ui-icon" aria-hidden="true"><use href="#icon-cpu"></use></svg> Modelos <span>›</span></span><span class="settings-nav-item"><svg class="ui-icon" aria-hidden="true"><use href="#icon-lock"></use></svg> Privacidad <span>›</span></span><span class="settings-nav-item"><svg class="ui-icon" aria-hidden="true"><use href="#icon-settings"></use></svg> Notificaciones <span>›</span></span></div>
+                    <div class="settings-main"><section class="surface-card settings-card"><div class="settings-card-heading"><div><h3>Comportamiento de la plataforma</h3><p>Activa o desactiva preferencias de muestra</p></div><span class="settings-mini-badge">GENERAL</span></div>
+                        <label class="setting-row"><span class="setting-symbol"><svg class="ui-icon" aria-hidden="true"><use href="#icon-bolt"></use></svg></span><span class="setting-copy"><strong>Escalado inteligente</strong><small>Ajusta visualmente la capacidad según la demanda.</small></span><span class="demo-switch"><input type="checkbox" checked data-demo-toggle data-label="Escalado inteligente" aria-label="Activar escalado inteligente"><span class="demo-slider"></span></span></label>
+                        <label class="setting-row"><span class="setting-symbol violet"><svg class="ui-icon" aria-hidden="true"><use href="#icon-brain"></use></svg></span><span class="setting-copy"><strong>Respuestas con contexto</strong><small>Prioriza información relevante en las respuestas de ejemplo.</small></span><span class="demo-switch"><input type="checkbox" checked data-demo-toggle data-label="Respuestas con contexto" aria-label="Activar respuestas con contexto"><span class="demo-slider"></span></span></label>
+                        <label class="setting-row"><span class="setting-symbol blue"><svg class="ui-icon" aria-hidden="true"><use href="#icon-lock"></use></svg></span><span class="setting-copy"><strong>Confirmar acciones sensibles</strong><small>Muestra un paso de revisión antes de continuar.</small></span><span class="demo-switch"><input type="checkbox" checked data-demo-toggle data-label="Confirmar acciones sensibles" aria-label="Confirmar acciones sensibles"><span class="demo-slider"></span></span></label>
+                        <label class="setting-row"><span class="setting-symbol amber"><svg class="ui-icon" aria-hidden="true"><use href="#icon-globe"></use></svg></span><span class="setting-copy"><strong>Idioma de la interfaz</strong><small>Preferencia visual para esta sesión de demostración.</small></span><span class="setting-select">Español <span>⌄</span></span></label>
+                    </section>
+                    <div class="settings-bottom-row"><div class="surface-card setting-info-card"><span class="setting-info-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-lock"></use></svg></span><div><strong>Tus ajustes no salen de esta vista</strong><p>Los interruptores solo cambian su apariencia; no guardan ni modifican datos.</p></div><span class="info-arrow"><svg class="ui-icon" aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div><button class="settings-save" type="button"><svg class="ui-icon" aria-hidden="true"><use href="#icon-check"></use></svg> Guardar cambios de prueba</button></div><p class="settings-feedback" aria-live="polite"><span class="status-dot"></span><span>Sin cambios guardados · experiencia ficticia</span></p></div>
                 </div>
-                <div class="demo-config-item">
-                    <div class="demo-config-info">
-                        <span class="demo-config-title">Compresión de Contexto GPU</span>
-                        <span class="demo-config-desc">Optimiza el uso de VRAM para inferencia de modelos pesados.</span>
-                    </div>
-                    <label class="demo-switch">
-                        <input type="checkbox" checked>
-                        <span class="demo-slider"></span>
-                    </label>
-                </div>
-                <div class="demo-config-item">
-                    <div class="demo-config-info">
-                        <span class="demo-config-title">Modo de Ahorro de API</span>
-                        <span class="demo-config-desc">Habilita caché local para ahorrar costos en tokens repetidos.</span>
-                    </div>
-                    <label class="demo-switch">
-                        <input type="checkbox">
-                        <span class="demo-slider"></span>
-                    </label>
-                </div>
-            </div>
+            </section>
         `,
-        '📈 reportes': `
-            <div class="demo-reports-list">
-                <div class="demo-report-card">
-                    <div class="demo-report-header">
-                        <span class="demo-report-title">Análisis de Latencia Semanal</span>
-                        <span class="demo-report-time">Hace 2 horas</span>
-                    </div>
-                    <p class="demo-report-summary">La latencia media global bajó a 34ms (-8.2%). El servidor regional en San Pablo, LATAM, completó la integración Edge con éxito.</p>
+        'assistant': `
+            <section class="demo-ai-panel" aria-label="Demostración del asistente de Nexus AI">
+                <div class="demo-ai-heading">
+                    <div class="demo-ai-brand"><span class="demo-ai-avatar" aria-hidden="true">${demoIcon('sparkles')}</span><div><strong>Nexus AI Assistant</strong><small>Asistente de demostración · respuestas guiadas</small></div></div>
+                    <span class="demo-ai-demo-tag">DEMO FICTICIA</span>
                 </div>
-                <div class="demo-report-card">
-                    <div class="demo-report-header">
-                        <span class="demo-report-title">Auditoría de Tokens Consumidos</span>
-                        <span class="demo-report-time">Ayer</span>
-                    </div>
-                    <p class="demo-report-summary">Ahorro de $1,420 USD gracias al nuevo algoritmo de caché. Total procesado: 48.2M tokens.</p>
+                <div class="demo-ai-messages" aria-live="polite" aria-relevant="additions">
+                    <div class="demo-ai-message">¡Hola! Soy el asistente de muestra de Nexus AI. Pregúntame sobre el producto, los planes, la seguridad o las integraciones.</div>
                 </div>
-            </div>
+                <div class="demo-ai-suggestions" aria-label="Preguntas sugeridas">
+                    <button class="demo-ai-suggestion" type="button" data-demo-question="¿Qué puede hacer Nexus AI?">¿Qué puede hacer?</button>
+                    <button class="demo-ai-suggestion" type="button" data-demo-question="¿Cuáles son los planes y precios?">Planes y precios</button>
+                    <button class="demo-ai-suggestion" type="button" data-demo-question="¿Cómo funciona la seguridad?">Seguridad</button>
+                    <button class="demo-ai-suggestion" type="button" data-demo-question="¿Con qué herramientas se integra?">Integraciones</button>
+                </div>
+                <form class="demo-ai-form">
+                    <input type="text" aria-label="Escribe una pregunta para la demostración" placeholder="Prueba una pregunta…" autocomplete="off">
+                    <button type="submit">Preguntar <span aria-hidden="true"><svg class="ui-icon"><use href="#icon-arrow"></use></svg></span></button>
+                </form>
+                <p class="demo-ai-note">Esta demo utiliza respuestas predefinidas; no envía mensajes ni se conecta a una IA real.</p>
+            </section>
+        `,
+        'reports': `
+            <section class="workspace-view" aria-labelledby="reports-title">
+                <header class="view-heading"><div><span class="view-kicker">ANÁLISIS DEL WORKSPACE</span><h2 id="reports-title">Informes y actividad</h2><p>Una lectura ejecutiva de indicadores de ejemplo para esta semana.</p></div><div class="view-period"><svg class="ui-icon" aria-hidden="true"><use href="#icon-clock"></use></svg><span>Esta semana</span><span aria-hidden="true">⌄</span></div></header>
+                <div class="report-highlight-grid"><article class="report-highlight"><span class="report-highlight-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-bolt"></use></svg></span><span class="report-highlight-label">Consultas procesadas</span><strong>24.8k</strong><small><b>+12.8%</b> respecto a la semana pasada</small><div class="mini-sparkline" aria-hidden="true"><i style="--bar:42%"></i><i style="--bar:58%"></i><i style="--bar:48%"></i><i style="--bar:76%"></i><i style="--bar:65%"></i><i style="--bar:94%"></i><i style="--bar:79%"></i></div></article><article class="report-highlight"><span class="report-highlight-icon violet"><svg class="ui-icon" aria-hidden="true"><use href="#icon-clock"></use></svg></span><span class="report-highlight-label">Tiempo recuperado</span><strong>38.5 h</strong><small><b>+6.4 h</b> de productividad estimada</small><div class="report-progress"><i style="width:76%"></i></div><span class="report-progress-caption">76% de la meta mensual ilustrativa</span></article><article class="report-highlight"><span class="report-highlight-icon blue"><svg class="ui-icon" aria-hidden="true"><use href="#icon-brain"></use></svg></span><span class="report-highlight-label">Calidad promedio</span><strong>96.4%</strong><small><b>+2.1%</b> en evaluaciones de muestra</small><div class="report-completion"><i style="width:96%"></i></div></article></div>
+                <div class="section-inline-heading report-list-heading"><div><h3>Informes recientes</h3><p>Resumenes generados para la experiencia de demostración</p></div><span class="demo-counter">03 informes</span></div>
+                <div class="report-list"><div class="report-list-item"><span class="report-doc-icon mint"><svg class="ui-icon" aria-hidden="true"><use href="#icon-chart"></use></svg></span><span class="report-list-copy"><strong>Rendimiento semanal del workspace</strong><small>Actividad, consultas y tendencias · Hoy, 09:40</small></span><span class="report-list-tag">Actividad</span><span class="report-open" aria-hidden="true"><svg class="ui-icon"><use href="#icon-arrow"></use></svg></span></div><div class="report-list-item"><span class="report-doc-icon violet"><svg class="ui-icon" aria-hidden="true"><use href="#icon-cpu"></use></svg></span><span class="report-list-copy"><strong>Uso y evaluación de modelos</strong><small>Uso por modelo y calidad estimada · Ayer, 16:20</small></span><span class="report-list-tag violet">Modelos</span><span class="report-open" aria-hidden="true"><svg class="ui-icon"><use href="#icon-arrow"></use></svg></span></div><div class="report-list-item"><span class="report-doc-icon blue"><svg class="ui-icon" aria-hidden="true"><use href="#icon-folder"></use></svg></span><span class="report-list-copy"><strong>Estado de fuentes de datos</strong><small>Conexiones y sincronizaciones de muestra · 18 oct, 11:05</small></span><span class="report-list-tag blue">Datos</span><span class="report-open" aria-hidden="true"><svg class="ui-icon"><use href="#icon-arrow"></use></svg></span></div></div>
+                <p class="demo-data-caption"><svg class="ui-icon" aria-hidden="true"><use href="#icon-warning"></use></svg> Todos los indicadores y reportes son ejemplos ficticios, no datos de producción.</p>
+            </section>
         `
     };
 
     sidebarItems.forEach(item => {
         item.style.cursor = 'pointer';
+        item.setAttribute('role', 'tab');
+        item.setAttribute('tabindex', item.classList.contains('active') ? '0' : '-1');
+        item.setAttribute('aria-selected', String(item.classList.contains('active')));
+        item.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                item.click();
+            } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+                event.preventDefault();
+                const next = sidebarItems[(Array.from(sidebarItems).indexOf(item) + 1) % sidebarItems.length];
+                next.focus();
+            } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+                event.preventDefault();
+                const index = Array.from(sidebarItems).indexOf(item);
+                sidebarItems[(index - 1 + sidebarItems.length) % sidebarItems.length].focus();
+            }
+        });
         item.addEventListener('click', () => {
             if (item.classList.contains('active')) return;
             
             // Highlight active sidebar item
-            sidebarItems.forEach(sib => sib.classList.remove('active'));
+            sidebarItems.forEach(sib => {
+                sib.classList.remove('active');
+                sib.setAttribute('aria-selected', 'false');
+                sib.setAttribute('tabindex', '-1');
+            });
             item.classList.add('active');
+            item.setAttribute('aria-selected', 'true');
+            item.setAttribute('tabindex', '0');
+
+            demoContent.setAttribute('aria-labelledby', item.id);
             
             // Fade out
             demoContent.classList.add('fade-out');
             
             setTimeout(() => {
-                const key = item.innerText.toLowerCase().trim();
+                const key = item.dataset.tab;
                 if (demoTemplates[key]) {
                     demoContent.innerHTML = demoTemplates[key];
                     
                     // Bind event listeners or trigger animations if necessary inside templates
-                    if (key === '📊 dashboard') {
+                    if (key === 'assistant') {
+                        const aiForm = demoContent.querySelector('.demo-ai-form');
+                        const aiInput = aiForm.querySelector('input');
+                        const aiMessages = demoContent.querySelector('.demo-ai-messages');
+                        const aiAnswers = [
+                            { terms: ['qué', 'hacer', 'producto', 'nexus'], answer: 'Nexus AI es una experiencia ficticia que muestra cómo un equipo podría explorar información, consultar un asistente y organizar flujos de trabajo desde un mismo espacio.' },
+                            { terms: ['plan', 'precio', 'cuesta'], answer: 'En esta maqueta hay tres planes de ejemplo: Starter gratuito, Pro por $49/mes y Enterprise con precio personalizado. Son valores ilustrativos, no una oferta comercial real.' },
+                            { terms: ['seguridad', 'privacidad', 'dato'], answer: 'La demo representa controles de privacidad y revisión humana como parte del producto imaginario. No procesa datos reales ni debe considerarse una certificación de seguridad.' },
+                            { terms: ['integr', 'herramient', 'conecta'], answer: 'La experiencia ilustra integraciones hipotéticas con herramientas de trabajo. No hay conectores activos en esta demostración.' }
+                        ];
+                        const addDemoMessage = (text, type) => {
+                            const message = document.createElement('div');
+                            message.className = `demo-ai-message${type === 'user' ? ' user' : ''}`;
+                            message.textContent = text;
+                            aiMessages.appendChild(message);
+                            aiMessages.scrollTop = aiMessages.scrollHeight;
+                        };
+                        const submitDemoQuestion = question => {
+                            const text = question.trim();
+                            if (!text) return;
+                            addDemoMessage(text, 'user');
+                            aiInput.value = '';
+                            const typing = document.createElement('div');
+                            typing.className = 'demo-ai-typing';
+                            typing.textContent = 'Nexus AI está preparando una respuesta…';
+                            aiMessages.appendChild(typing);
+                            aiMessages.scrollTop = aiMessages.scrollHeight;
+                            window.setTimeout(() => {
+                                typing.remove();
+                                const normalized = text.toLocaleLowerCase('es');
+                                const match = aiAnswers.find(item => item.terms.some(term => normalized.includes(term)));
+                                addDemoMessage(match ? match.answer : 'Puedo orientarte sobre las capacidades, los planes de ejemplo, la seguridad o las integraciones. Prueba una de las preguntas sugeridas.', 'assistant');
+                            }, 650);
+                        };
+                        aiForm.addEventListener('submit', event => {
+                            event.preventDefault();
+                            submitDemoQuestion(aiInput.value);
+                        });
+                        demoContent.querySelectorAll('[data-demo-question]').forEach(button => {
+                            button.addEventListener('click', () => submitDemoQuestion(button.dataset.demoQuestion));
+                        });
+                    } else if (key === 'dashboard') {
                         // Re-trigger bar animations inside newly loaded dashboard template
                         const newBars = demoContent.querySelectorAll('.chart-bar');
                         newBars.forEach((bar) => {
@@ -399,22 +435,50 @@ document.addEventListener('DOMContentLoaded', () => {
                                 bar.style.transform = '';
                             }, 50);
                         });
-                    } else if (key === '📁 datasets') {
-                        // Interactive button states
+                    } else if (key === 'datasets') {
                         const syncBtns = demoContent.querySelectorAll('.demo-dataset-btn');
                         syncBtns.forEach(btn => {
                             btn.addEventListener('click', () => {
-                                btn.innerText = 'Sincronizando...';
-                                btn.style.background = 'rgba(234,179,8,0.1)';
-                                btn.style.color = '#fbbf24';
-                                btn.style.borderColor = 'rgba(234,179,8,0.3)';
-                                setTimeout(() => {
-                                    btn.innerText = 'Completado ✓';
-                                    btn.style.background = 'rgba(34,197,94,0.1)';
-                                    btn.style.color = '#22c55e';
-                                    btn.style.borderColor = 'rgba(34,197,94,0.3)';
-                                }, 1500);
+                                if (btn.disabled || btn.classList.contains('is-complete')) return;
+                                const status = btn.closest('.dataset-row')?.querySelector('.dataset-state');
+                                const statusDot = status?.querySelector('i');
+                                btn.disabled = true;
+                                btn.innerHTML = '<span class="button-spinner" aria-hidden="true"></span> Actualizando';
+                                if (status) status.lastChild.textContent = ' Sincronizando';
+                                if (statusDot) statusDot.classList.add('is-syncing');
+                                window.setTimeout(() => {
+                                    btn.innerHTML = `${demoIcon('check')} Actualizado`;
+                                    btn.classList.add('is-complete');
+                                    btn.disabled = false;
+                                    if (status) status.lastChild.textContent = ' Actualizado ahora';
+                                    if (statusDot) statusDot.classList.remove('is-syncing');
+                                }, 950);
                             });
+                        });
+                    } else if (key === 'config') {
+                        const feedback = demoContent.querySelector('.settings-feedback');
+                        const feedbackText = feedback?.querySelector('span:last-child');
+                        const saveButton = demoContent.querySelector('.settings-save');
+                        demoContent.querySelectorAll('[data-demo-toggle]').forEach(toggle => {
+                            toggle.addEventListener('change', () => {
+                                if (!feedback || !feedbackText) return;
+                                feedbackText.textContent = `${toggle.dataset.label}: ${toggle.checked ? 'activado' : 'desactivado'} · solo efecto visual`;
+                                feedback.classList.add('is-updated');
+                                saveButton?.classList.remove('is-saved');
+                                if (saveButton) saveButton.innerHTML = `${demoIcon('check')} Guardar cambios de prueba`;
+                            });
+                        });
+                        saveButton?.addEventListener('click', () => {
+                            saveButton.classList.add('is-saved');
+                            saveButton.innerHTML = `${demoIcon('check')} Guardado en esta demo`;
+                            if (feedback && feedbackText) {
+                                feedbackText.textContent = 'Preferencias de muestra actualizadas en pantalla · no se guardan datos';
+                                feedback.classList.add('is-updated');
+                            }
+                            window.setTimeout(() => {
+                                saveButton.classList.remove('is-saved');
+                                saveButton.innerHTML = `${demoIcon('check')} Guardar cambios de prueba`;
+                            }, 1700);
                         });
                     }
                 }
@@ -424,6 +488,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 250);
         });
     });
+
+    // Bind the default assistant view so it is interactive before the first tab change.
+    const initialAssistantTab = document.querySelector('.sidebar-item[data-tab="assistant"]');
+    if (initialAssistantTab) {
+        initialAssistantTab.classList.remove('active');
+        initialAssistantTab.click();
+    }
 
     // ===================== CHART BARS SCROLL TRIGGER =====================
     const chartBars = document.querySelectorAll('.chart-bar');
@@ -439,6 +510,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===================== COUNTER ANIMATION (spring easing) =====================
     function animateCounter(el, target) {
+        if (prefersReducedMotion) {
+            el.textContent = target.toLocaleString();
+            return;
+        }
         let start = 0;
         const duration = 2000;
         const step = timestamp => {
@@ -465,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroImg = document.querySelector('.hero-img');
     const glowOrb = document.querySelector('.glow-orb');
     
-    if (heroImg) {
+    if (heroImg && !heroImg.classList.contains('dashboard-art')) {
         window.addEventListener('scroll', () => {
             const scrollY = window.scrollY;
             const speed = 0.12;
@@ -635,24 +710,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let userName = null;
 
     chatToggle.addEventListener('click', () => {
-        chatToggle.classList.toggle('open');
-        chatWidget.classList.toggle('open');
-        if (chatWidget.classList.contains('open') && !userName) {
+        const isOpen = chatWidget.classList.toggle('open');
+        chatToggle.classList.toggle('open', isOpen);
+        chatToggle.setAttribute('aria-expanded', String(isOpen));
+        if (isOpen && !userName) {
             setTimeout(() => chatInput.focus(), 400);
         }
     });
 
     const prebakedAnswers = {
-        '¿Qué es Nexus AI? 🧠': 'Nexus AI es una suite de Inteligencia Artificial que permite a empresas procesar datos complejos y desplegar modelos de lenguaje personalizados en su propia nube privada en cuestión de minutos. 🚀',
-        'Planes y Precios 💰': 'Tenemos 3 planes adaptados a ti: **Starter** (100% gratis, 1,000 consultas al mes), **Pro** ($49/mes con 50,000 consultas) y **Enterprise** con recursos GPU dedicados y soporte 24/7. 💳',
-        'Seguridad y Privacidad 🔒': 'Tus datos son sagrados. Contamos con cifrado AES-256 en reposo y tránsito, cumplimiento absoluto de normas GDPR y SOC 2, y garantizamos que tus datos jamás se usarán para entrenar modelos públicos. 🔒',
-        'Integraciones 🔗': 'Nos conectamos nativamente con más de 200 plataformas (Slack, Notion, Salesforce, Google Drive, AWS) y disponemos de una API REST ultra-documentada para desarrolladores. 🔗'
+        '¿Qué es Nexus AI? ': 'Nexus AI es una suite de Inteligencia Artificial que permite a empresas procesar datos complejos y desplegar modelos de lenguaje personalizados en su propia nube privada en cuestión de minutos. ',
+        'Planes y Precios ': 'Tenemos 3 planes adaptados a ti: Starter (100% gratis, 1,000 consultas al mes), Pro ($49/mes con 50,000 consultas) y Enterprise con recursos GPU dedicados y soporte 24/7. ',
+        'Seguridad y Privacidad ': 'Tus datos son sagrados. Contamos con cifrado AES-256 en reposo y tránsito, cumplimiento absoluto de normas GDPR y SOC 2, y garantizamos que tus datos jamás se usarán para entrenar modelos públicos. ',
+        'Integraciones ': 'Nos conectamos nativamente con más de 200 plataformas (Slack, Notion, Salesforce, Google Drive, AWS) y disponemos de una API REST ultra-documentada para desarrolladores. '
     };
 
     function addMessage(text, type) {
         const msg = document.createElement('div');
         msg.className = `chat-msg ${type}`;
-        msg.innerHTML = `<span>${text}</span>`;
+        const content = document.createElement('span');
+        content.textContent = text;
+        msg.appendChild(content);
         chatMessages.appendChild(msg);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
@@ -726,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             setTimeout(() => {
                 removeTyping();
-                addMessage(`¡Un placer conocerte, <strong>${userName}</strong>! 👋 Soy el asistente virtual de Nexus AI. ¿Qué te gustaría saber hoy?`, 'bot');
+                addMessage(`¡Un placer conocerte, ${userName}!  Soy el asistente virtual de Nexus AI. ¿Qué te gustaría saber hoy?`, 'bot');
                 
                 // Show option chips
                 setTimeout(() => {
@@ -745,9 +823,9 @@ document.addEventListener('DOMContentLoaded', () => {
         notification.className = 'top-notification';
         notification.innerHTML = `
             <div class="top-notification-content" id="trigger-chat-btn">
-                <span>💡 ¿Quieres saber más sobre Nexus AI? ¡Prueba nuestro asistente interactivo en el chat abajo a la derecha! 🤖</span>
+                <span><svg class="ui-icon" aria-hidden="true"><use href="#icon-sparkles"></use></svg> ¿Quieres saber más sobre Nexus AI? ¡Prueba nuestro asistente interactivo en el chat abajo a la derecha! <svg class="ui-icon" aria-hidden="true"><use href="#icon-robot"></use></svg></span>
             </div>
-            <button class="top-notification-close" id="close-promo-btn" aria-label="Cerrar">✕</button>
+            <button class="top-notification-close" id="close-promo-btn" aria-label="Cerrar"><svg class="ui-icon" aria-hidden="true"><use href="#icon-close"></use></svg></button>
         `;
         document.body.appendChild(notification);
 
@@ -784,5 +862,25 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }, 30000);
+
+    document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape') return;
+        if (chatWidget && chatWidget.classList.contains('open')) {
+            chatWidget.classList.remove('open');
+            chatToggle.classList.remove('open');
+            chatToggle.setAttribute('aria-expanded', 'false');
+            chatToggle.focus();
+        }
+        if (modal && modal.classList.contains('active')) {
+            modal.classList.remove('active');
+        }
+        if (navMenu && navMenu.classList.contains('active')) {
+            navMenu.classList.remove('active');
+            mobileMenu.classList.remove('active');
+            mobileMenu.setAttribute('aria-expanded', 'false');
+            mobileMenu.setAttribute('aria-label', 'Abrir menú');
+            mobileMenu.focus();
+        }
+    });
 
 });
